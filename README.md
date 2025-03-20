@@ -1,4 +1,7 @@
 ## EX. NO:2 IMPLEMENTATION OF PLAYFAIR CIPHER
+## DATE: 20-03-2025
+## REG NO: 212224040041
+## NAME: AYUSH S
 
  
 
@@ -7,7 +10,7 @@
 
  
 
-To write a C program to implement the Playfair Substitution technique.
+To write a python program to implement the Playfair Substitution technique.
 
 ## DESCRIPTION:
 
@@ -36,8 +39,93 @@ STEP-5: Display the obtained cipher text.
 
 Program:
 
+```
+import numpy as np
+
+def generate_playfair_matrix(key):
+    key = key.replace("J", "I").upper()
+    key_set = set()
+    matrix = []
+    
+    for char in key:
+        if char not in key_set and char.isalpha():
+            key_set.add(char)
+            matrix.append(char)
+    
+    for char in "ABCDEFGHIKLMNOPQRSTUVWXYZ":
+        if char not in key_set:
+            key_set.add(char)
+            matrix.append(char)
+    
+    return np.array(matrix).reshape(5, 5)
+
+def find_position(matrix, letter):
+    result = np.where(matrix == letter)
+    return result[0][0], result[1][0]
+
+def preprocess_text(text):
+    text = text.replace("J", "I").upper()
+    text = "".join([c for c in text if c.isalpha()])
+    new_text = ""
+    i = 0
+    while i < len(text):
+        new_text += text[i]
+        if i + 1 < len(text) and text[i] == text[i + 1]:
+            new_text += "X"
+        i += 1
+    if len(new_text) % 2 != 0:
+        new_text += "X"
+    return new_text
+
+def encrypt_pair(matrix, a, b):
+    r1, c1 = find_position(matrix, a)
+    r2, c2 = find_position(matrix, b)
+    
+    if r1 == r2:
+        return matrix[r1][(c1 + 1) % 5] + matrix[r2][(c2 + 1) % 5]
+    elif c1 == c2:
+        return matrix[(r1 + 1) % 5][c1] + matrix[(r2 + 1) % 5][c2]
+    else:
+        return matrix[r1][c2] + matrix[r2][c1]
+
+def decrypt_pair(matrix, a, b):
+    r1, c1 = find_position(matrix, a)
+    r2, c2 = find_position(matrix, b)
+    
+    if r1 == r2:
+        return matrix[r1][(c1 - 1) % 5] + matrix[r2][(c2 - 1) % 5]
+    elif c1 == c2:
+        return matrix[(r1 - 1) % 5][c1] + matrix[(r2 - 1) % 5][c2]
+    else:
+        return matrix[r1][c2] + matrix[r2][c1]
+
+def playfair_cipher(text, key, encrypt=True):
+    matrix = generate_playfair_matrix(key)
+    processed_text = preprocess_text(text)
+    result = ""
+    
+    for i in range(0, len(processed_text), 2):
+        if encrypt:
+            result += encrypt_pair(matrix, processed_text[i], processed_text[i + 1])
+        else:
+            result += decrypt_pair(matrix, processed_text[i], processed_text[i + 1])
+    
+    return result
+
+# Example Usage
+key = "PLAYFAIR EXAMPLE"
+plaintext = "HIDE THE GOLD IN THE TREE"
+ciphertext = playfair_cipher(plaintext, key, encrypt=True)
+decrypted_text = playfair_cipher(ciphertext, key, encrypt=False)
+
+print("Ciphertext:", ciphertext)
+print("Decrypted Text:", decrypted_text)
+```
+
 
 
 
 
 Output:
+
+<img width="757" alt="Screenshot 2025-03-20 091010" src="https://github.com/user-attachments/assets/3a3969ee-5f10-4bdb-b2aa-60109b14c85a" />
